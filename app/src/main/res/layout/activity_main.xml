@@ -7,13 +7,43 @@
     tools:context="se.sugarest.jane.testgoogleapi.MainActivity">
 
     <TextView
-        android:id="@+id/tv_location_goes_here"
+        android:id="@+id/tv_latitude_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Location goes here!"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Latitude:"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_latitude_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintLeft_toRightOf="@+id/tv_latitude_label"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="47.6703722" />
+
+    <TextView
+        android:id="@+id/tv_longitude_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Longitude:"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_latitude_label" />
+
+    <TextView
+        android:id="@+id/tv_longitude_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintLeft_toRightOf="@+id/tv_longitude_label"
+        app:layout_constraintTop_toBottomOf="@+id/tv_latitude_number"
+        tools:text="-122.1970554" />
 
 </android.support.constraint.ConstraintLayout>
