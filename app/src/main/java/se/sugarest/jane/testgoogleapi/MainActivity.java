@@ -27,11 +27,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private final static int REQUEST_LOCATION = 2;
 
-    private TextView mLatitudeTextView;
-    private TextView mLongitudeTextView;
-    private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
-    private Location mLastLocation;
+    protected TextView mLatitudeTextView;
+    protected TextView mLongitudeTextView;
+    protected GoogleApiClient mGoogleApiClient;
+    protected LocationRequest mLocationRequest;
+    protected Location mLastLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
