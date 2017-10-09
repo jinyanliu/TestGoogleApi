@@ -18,6 +18,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+// the implementation of LocationListener is only needed when you want to listen the location update.
+// locationListener is not needed for get lastLocation service.
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -35,10 +37,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mLatitudeTextView = (TextView) findViewById(R.id.tv_latitude_number);
         mLongitudeTextView = (TextView) findViewById(R.id.tv_longitude_number);
+        buildGoogleApiClinet();
+    }
 
+    protected synchronized void buildGoogleApiClinet() {
         // Create and setup GoogleApiClient
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -47,6 +51,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .build();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Connect the Client
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Disconnect the client
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    /**
+     * Runs when a GoogleApiClient object successfully connects.
+     */
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this,
@@ -67,6 +90,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             /**
              * getLastLocation
+             *
+             * Provides a simple way of getting a device's location and is well suited for
+             * applications that do not require a fine-grained location and that do not need location
+             * updates. Gets the best and most recent location currently available, which may be null
+             * in rare cases when a location is not available.
              */
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             if (mLastLocation != null) {
@@ -102,14 +130,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-        Log.i(TAG, "GoogleApiClient connection has been suspended");
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
+        // onConnectionFailed.
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
+    }
 
+    /**
+     * Called by Google Play services if the connection to GoogleApiClient drops because of an
+     * error.
+     */
+    public void onDisconnected() {
+        Log.i(TAG, "Disconnected");
     }
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i(TAG, "GoogleApiClient connection has failed");
+    public void onConnectionSuspended(int i) {
+        // The connection to Google Play services was lost for some reason. We call connect() to
+        // attempt to re-establish the connection.
+        Log.i(TAG, "GoogleApiClient connection has been suspended");
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -119,21 +159,5 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         String longitude = Double.toString(location.getLongitude());
         mLatitudeTextView.setText(latitude);
         mLongitudeTextView.setText(longitude);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Connect the Client
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // Disconnect the client
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
     }
 }
