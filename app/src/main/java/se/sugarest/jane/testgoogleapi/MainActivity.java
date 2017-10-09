@@ -29,11 +29,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private TextView mLongitudeTextView;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    private Location mLastLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mLatitudeTextView = (TextView) findViewById(R.id.tv_latitude_number);
+        mLongitudeTextView = (TextView) findViewById(R.id.tv_longitude_number);
 
         // Create and setup GoogleApiClient
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -41,17 +45,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-
-        mLatitudeTextView = (TextView) findViewById(R.id.tv_latitude_number);
-        mLongitudeTextView = (TextView) findViewById(R.id.tv_longitude_number);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(1000); // Update location every second
-
         if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Check Permissions Now
@@ -60,7 +57,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_LOCATION);
         } else {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+//            /**
+//             * requestLocationUpdates
+//             */
+//            mLocationRequest = LocationRequest.create();
+//            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//            mLocationRequest.setInterval(1000); // Update location every second
+//            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+
+            /**
+             * getLastLocation
+             */
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            if (mLastLocation != null) {
+                mLatitudeTextView.setText(String.valueOf(mLastLocation.getLatitude()));
+                mLongitudeTextView.setText(String.valueOf(mLastLocation.getLongitude()));
+            }
         }
     }
 
@@ -69,7 +81,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (requestCode == REQUEST_LOCATION) {
             if (grantResults.length == 1
                     && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+//                /**
+//                 * requestLocationUpdates
+//                 */
+//                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+
+                /**
+                 * getLastLocation
+                 */
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                if (mLastLocation != null) {
+                    mLatitudeTextView.setText(String.valueOf(mLastLocation.getLatitude()));
+                    mLongitudeTextView.setText(String.valueOf(mLastLocation.getLongitude()));
+                }
             } else {
                 // Permission was denied or request was cancelled
                 Toast.makeText(this, "Location Permissions denied.", Toast.LENGTH_SHORT).show();
@@ -106,8 +130,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     protected void onStop() {
-        // Disconnect the client
-        mGoogleApiClient.disconnect();
         super.onStop();
+        // Disconnect the client
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
     }
 }
